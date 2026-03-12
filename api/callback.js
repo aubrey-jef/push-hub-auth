@@ -20,6 +20,8 @@
       headers: { Authorization: `Bearer ${userToken}` }
     })
     const identity = await identityRes.json()
+    console.log('identity response:', JSON.stringify(identity))
+
     if (!identity.ok) return res.status(400).json({ error: identity.error })
 
     const params = new URLSearchParams({
