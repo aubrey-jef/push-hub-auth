@@ -19,5 +19,10 @@
     const token = data.authed_user?.access_token
     const id = data.authed_user?.id
 
-    res.redirect(`http://localhost:7676/callback?token=${token}&id=${id}`)
+    res.setHeader('Content-Type', 'text/html')
+    res.send(`<html><head><meta http-equiv="refresh" content="0;url=pushhub://auth?token=${token}&id=${id}"></head>
+      <body style="font-family:sans-serif;padding:40px">
+        <p>Logger inn i Push Hub...</p>
+        <p><a href="pushhub://auth?token=${token}&id=${id}">Klikk her</a> hvis ingenting skjer.</p>
+      </body></html>`)
   }
