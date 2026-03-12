@@ -18,12 +18,6 @@
 
     const token = data.authed_user?.access_token
     const id = data.authed_user?.id
-    const redirectUrl = `pushhub://auth?token=${token}&id=${id}`
 
-    res.setHeader('Content-Type', 'text/html')
-    res.send(`<html><head><meta http-equiv="refresh" content="0;url=${redirectUrl}"></head>
-      <body style="font-family:sans-serif;padding:40px">
-        <p>Logger inn i Push Hub...</p>
-        <p><a href="${redirectUrl}">Klikk her</a> hvis ingenting skjer.</p>
-      </body></html>`)
+    res.redirect(`http://localhost:7676/callback?token=${token}&id=${id}`)
   }
