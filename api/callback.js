@@ -2,7 +2,7 @@
     const { code } = req.query
     if (!code) return res.status(400).json({ error: 'No code' })
 
-    const response = await fetch('https://slack.com/api/oauth.v2.access', {
+    const tokenRes = await fetch('https://slack.com/api/oauth.v2.access', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
@@ -12,17 +12,27 @@
         redirect_uri: process.env.SLACK_REDIRECT_URI,
       })
     })
+    const tokenData = await tokenRes.json()
+    if (!tokenData.ok) return res.status(400).json({ error: tokenData.error })
 
-    const data = await response.json()
-    if (!data.ok) return res.status(400).json({ error: data.error })
+    const userToken = tokenData.authed_user?.access_token
+    const identityRes = await fetch('https://slack.com/api/users.identity', {
+      headers: { Authorization: `Bearer ${userToken}` }
+    })
+    const identity = await identityRes.json()
+    if (!identity.ok) return res.status(400).json({ error: identity.error })
 
-    const token = data.authed_user?.access_token
-    const id = data.authed_user?.id
+    const params = new URLSearchParams({
+      name:   identity.user.name,
+      email:  identity.user.email,
+      avatar: identity.user.image_48,
+      id:     identity.user.id,
+    })
 
     res.setHeader('Content-Type', 'text/html')
-    res.send(`<html><head><meta http-equiv="refresh" content="0;url=pushhub://auth?token=${token}&id=${id}"></head>
+    res.send(`<html><head><meta http-equiv="refresh" content="0;url=pushhub://auth?${params}"></head>
       <body style="font-family:sans-serif;padding:40px">
         <p>Logger inn i Push Hub...</p>
-        <p><a href="pushhub://auth?token=${token}&id=${id}">Klikk her</a> hvis ingenting skjer.</p>
+        <p><a href="pushhub://auth?${params}">Klikk her</a> hvis ingenting skjer.</p>
       </body></html>`)
   }
