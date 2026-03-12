@@ -18,4 +18,4 @@ export default async function handler(req, res) {
 
     const user = data.authed_user
     res.redirect(`pushhub://auth?token=${user.access_token}&id=${user.id}`)
-  }
+  } 
